@@ -6,7 +6,7 @@
 #include "reference.hpp"
 #include "utils.hpp"
 
-constexpr int dim = 2050;
+constexpr int dim = 4098; //2050;
 uint8_t* buf_current;
 uint8_t* buf_next;
 
@@ -72,5 +72,17 @@ int main()
 	buf_next = new uint8_t[dim * dim];
 
 	auto ref_timing = run<SolverReference<dim>>("reference");
-	run<SolverNaive<dim>>("naive", ref_timing);
+	constexpr bool use_avx = true;
+	run<SolverMultiThread<dim,  1, use_avx>>("MultiThread  1", ref_timing);
+	run<SolverMultiThread<dim,  2, use_avx>>("MultiThread  2", ref_timing);
+	run<SolverMultiThread<dim,  4, use_avx>>("MultiThread  4", ref_timing);
+	run<SolverMultiThread<dim,  8, use_avx>>("MultiThread  8", ref_timing);
+	run<SolverMultiThread<dim, 16, use_avx>>("MultiThread 16", ref_timing);
+	run<SolverMultiThread<dim, 20, use_avx>>("MultiThread 20", ref_timing);
+	run<SolverMultiThread<dim, 22, use_avx>>("MultiThread 22", ref_timing);
+	run<SolverMultiThread<dim, 24, use_avx>>("MultiThread 24", ref_timing);
+	run<SolverAVX<dim>>						("           AVX", ref_timing);
+	run<SolverBranchlessLess<dim>>			("branchlessLess", ref_timing);
+	run<SolverBranchless<dim>>				("    branchless", ref_timing);
+	run<SolverNaive<dim>>					("       mynaive", ref_timing);
 }
