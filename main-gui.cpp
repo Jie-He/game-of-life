@@ -1,4 +1,4 @@
-#include <GLAD/gl.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
@@ -21,6 +21,32 @@ void quit(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+template <typename Solver>
+void do_init(Solver& solver)
+{
+    constexpr int api = get_solver_api_version<SolverNaive<dim>>();
+
+    if constexpr (api == 2)
+        solver.init(buf_current);
+}
+
+template <typename Solver>
+void do_update(Solver& solver)
+{
+    constexpr int api = get_solver_api_version<SolverNaive<dim>>();
+
+    if constexpr (api == 1)
+    {
+        solver.update(buf_current, buf_next);
+        std::swap(buf_current, buf_next);
+    }
+    else
+    {
+        solver.update();
+        solver.get_results(buf_current);
+    }
 }
 
 int main()
@@ -128,12 +154,17 @@ int main()
 
 	SolverNaive<dim> solver;
 
+    do_init(solver);
+
     while (!glfwWindowShouldClose(window))
     {
-    	solver.update(buf_current, buf_next);
-		std::swap(buf_current, buf_next);
+        do_update(solver);
 
+#ifdef _WIN32
 		Sleep(100);
+#else
+        sleep(0.1);
+#endif
 
     	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, dim, dim, 0, GL_RED, GL_UNSIGNED_BYTE, buf_current);
 

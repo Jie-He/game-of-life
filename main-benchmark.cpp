@@ -1,6 +1,7 @@
 #include <chrono>
 #include <optional>
 #include <algorithm>
+#include <cstdio>
 
 #include "solver.hpp"
 #include "reference.hpp"
@@ -22,6 +23,8 @@ uint32_t count_alive()
 template <typename Solver>
 int64_t run(const char* name, std::optional<int64_t> ref_timing = std::nullopt)
 {
+	constexpr int api = get_solver_api_version<Solver>();
+
 	int64_t best_time = std::numeric_limits<int64_t>::max();
 	int num_runs = 0;
 
@@ -35,17 +38,28 @@ int64_t run(const char* name, std::optional<int64_t> ref_timing = std::nullopt)
 
 	    place_lidka(dim, 1000, 1000, buf_current);
 
+		Solver solver;
+
+		if constexpr (api == 2)
+			solver.init(buf_current);
+
 	    auto start_timepoint = std::chrono::high_resolution_clock::now();
 
-	    Solver solver;
-
 	    for (int gen = 0; gen < 100; gen++)
-	    {
-			solver.update(buf_current, buf_next);
-			std::swap(buf_current, buf_next);
-	    }
+		{
+			if constexpr (api == 1)
+			{
+				solver.update(buf_current, buf_next);
+				std::swap(buf_current, buf_next);
+			}
+			else
+				solver.update();
+		}
 
-	    auto end_timepoint = std::chrono::high_resolution_clock::now();
+		auto end_timepoint = std::chrono::high_resolution_clock::now();
+
+		if constexpr (api == 2)
+			solver.get_results(buf_current);
 
 		auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_timepoint - start_timepoint).count();
 
@@ -58,10 +72,10 @@ int64_t run(const char* name, std::optional<int64_t> ref_timing = std::nullopt)
     if (ref_timing.has_value())
     {
 		float speedup = (float)ref_timing.value() / (float)best_time;
-		printf("%s: %zd ms, alive=%d, runs=%d, speedup=%.1fx\n", name, best_time, alive, num_runs, speedup);
+		printf("%s: %zd ms, alive=%d, runs=%d, api=%d, speedup=%.1fx\n", name, best_time, alive, num_runs, api, speedup);
     }
     else
-		printf("%s: %zd ms, alive=%d, runs=%d\n", name, best_time, alive, num_runs);
+		printf("%s: %zd ms, alive=%d, runs=%d, api=%d\n", name, best_time, alive, num_runs, api);
 
     return best_time;
 }
