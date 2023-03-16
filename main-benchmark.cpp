@@ -87,14 +87,26 @@ int main()
 
 	auto ref_timing = run<SolverReference<dim>>("reference");
 	constexpr bool use_avx = true;
-	run<SolverMultiThread<dim,  1, use_avx>>("MultiThread  1", ref_timing);
-	run<SolverMultiThread<dim,  2, use_avx>>("MultiThread  2", ref_timing);
-	run<SolverMultiThread<dim,  4, use_avx>>("MultiThread  4", ref_timing);
-	run<SolverMultiThread<dim,  8, use_avx>>("MultiThread  8", ref_timing);
-	run<SolverMultiThread<dim, 16, use_avx>>("MultiThread 16", ref_timing);
-	run<SolverMultiThread<dim, 20, use_avx>>("MultiThread 20", ref_timing);
-	run<SolverMultiThread<dim, 22, use_avx>>("MultiThread 22", ref_timing);
-	run<SolverMultiThread<dim, 24, use_avx>>("MultiThread 24", ref_timing);
+	run<SolverMultiThread<dim,  1, use_avx>>("AVX MultiThread  1", ref_timing);
+	run<SolverMultiThread<dim,  2, use_avx>>("AVX MultiThread  2", ref_timing);
+	run<SolverMultiThread<dim,  4, use_avx>>("AVX MultiThread  4", ref_timing);
+	run<SolverMultiThread<dim,  8, use_avx>>("AVX MultiThread  8", ref_timing);
+	run<SolverMultiThread<dim, 16, use_avx>>("AVX MultiThread 16", ref_timing);
+	run<SolverMultiThread<dim, 20, use_avx>>("AVX MultiThread 20", ref_timing);
+	run<SolverMultiThread<dim, 22, use_avx>>("AVX MultiThread 22", ref_timing);
+	run<SolverMultiThread<dim, 24, use_avx>>("AVX MultiThread 24", ref_timing);
+	run<SolverMultiThread<dim, 28, use_avx>>("AVX MultiThread 28", ref_timing);
+
+	run<SolverMultiThread<dim,  1, !use_avx>>("Branchless MultiThread  1", ref_timing);
+	run<SolverMultiThread<dim,  2, !use_avx>>("Branchless MultiThread  2", ref_timing);
+	run<SolverMultiThread<dim,  4, !use_avx>>("Branchless MultiThread  4", ref_timing);
+	run<SolverMultiThread<dim,  8, !use_avx>>("Branchless MultiThread  8", ref_timing);
+	run<SolverMultiThread<dim, 16, !use_avx>>("Branchless MultiThread 16", ref_timing);
+	run<SolverMultiThread<dim, 20, !use_avx>>("Branchless MultiThread 20", ref_timing);
+	run<SolverMultiThread<dim, 22, !use_avx>>("Branchless MultiThread 22", ref_timing);
+	run<SolverMultiThread<dim, 24, !use_avx>>("Branchless MultiThread 24", ref_timing);
+	run<SolverMultiThread<dim, 28, !use_avx>>("Branchless MultiThread 28", ref_timing);
+
 	run<SolverAVX<dim>>						("           AVX", ref_timing);
 	run<SolverBranchlessLess<dim>>			("branchlessLess", ref_timing);
 	run<SolverBranchless<dim>>				("    branchless", ref_timing);
